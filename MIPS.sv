@@ -8,13 +8,13 @@ output y );
 
   logic [5:0] PC_4,b_addr;
   logic [4:0] wn;
-  wire [31:0] instruction, alu_result;
+  wire [31:0] instruction, alu_result, fpu_result ,rd1_FP,rd2_FP;
   logic [31:0] b,data_out;
-  logic [31:0] data,rd1,rd2,wd;
-  logic	RegDst,RegWrite,ALUSrc,MemRead,MemWrite,MemToReg,PCSrc,Branch,alu_zero;
+  logic [31:0] data,rd1,rd2,wd,rd2_selected;
+  logic	RegDst,RegWrite,RegWrite_FP,RegWrite_Gen,ALUSrc,MemRead,MemWrite,MemToReg,PCSrc,Branch,alu_zero;
   logic [2:0] alu_op;// translated alu op
 
-  logic halt;
+  logic halt,FPO;
 
 
   assign clk_internal = clk && !halt;
@@ -38,21 +38,38 @@ output y );
     .MemWrite(MemWrite),
     .MemToReg(MemToReg),
     .PCSrc(PCSrc),
-    .outOp(alu_op)
+    .outOp(alu_op),
+    .FPO(FPO)
   );
   RegisterFile regFile (
     .rs(instruction[25:21]),
     .rt(instruction[20:16]), // break down instruciton
     .wn(wn),
     .wd(wd),
-    .RegWrite(RegWrite),
+    .RegWrite(RegWrite_Gen),
     .rd1(rd1),
     .rd2(rd2),
     .rst(rst),
     .clk(clk_internal)
   );
 
-
+  RegisterFile regFile_FP (
+    .rs(instruction[20:16]),
+    .rt(instruction[15:11]), // break down instruciton
+    .wn(instruction[10:6]),
+    .wd(wd),
+    .RegWrite(RegWrite_FP),
+    .rd1(rd1_FP),
+    .rd2(rd2_FP),
+    .rst(rst),
+    .clk(clk_internal)
+  );
+  FPU fpu_m(
+    .a(rd1_FP),
+    .b(rd2_FP),
+    .c(fpu_result),
+    .op(0) // only add for now
+    );
 
   ALU alu_m(
     .a(rd1),// connect Reg to ALU
@@ -63,7 +80,7 @@ output y );
   );
   DataMemory dm (
     .address(alu_result),
-    .data_in(rd2),
+    .data_in(rd2_selected),
     .data_out(data_out),
     .memRead(MemRead),
     .memWrite(MemWrite),
@@ -80,7 +97,9 @@ always_comb begin
   PC_next = (Branch && alu_zero) ? b_addr : PC_4; // top right mux
   PC_next = PCSrc ? instruction[25:0]<<2 : PC_next; // top right mux
   b = ALUSrc ?  { {16{instruction[15]}} ,instruction[15:0]} : rd2 ; // choose either sign extention or reg RegisterFile
-
+  rd2_selected= FPO ? rd2_FP:rd2;
+  RegWrite_Gen= FPO ? 0:RegWrite;
+  RegWrite_FP = FPO ? RegWrite : 0;
   wn = RegDst ? instruction[15:11] : instruction[20:16];
 
 end

@@ -6,7 +6,7 @@ module InstructionMemory(input [5:0] PC,
 
 logic [8-1:0] imem [0:2**6-1]; //** is the power operator// 8 bit wide, 2^6=64 byte long
 
-parameter imem_INIT = "//Mac/Home/Documents/MIPS-single-cycle/mips1.txt";
+parameter imem_INIT = "//Mac/Home/Documents/MIPS-single-cycle-with-FPU/float_add_8.txt";
 
 initial begin
 	$readmemh(imem_INIT, imem);

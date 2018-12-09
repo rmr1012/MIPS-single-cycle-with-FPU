@@ -1,5 +1,5 @@
 
-module fp_12(
+module FPU(
 	input op,  // op-code :0 is add, 1 is subtract
 	input [31:0] a, b,
 	output logic [31:0] c);

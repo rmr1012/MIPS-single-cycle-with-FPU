@@ -8,7 +8,7 @@ module DataMemory(input [5:0] address,
 
 logic [8-1:0] dmem [0:2**6-1]; //** is the power operator// 8 bit wide, 2^6=64 byte long
 
-parameter dmem_INIT = "//Mac/Home/Documents/MIPS-single-cycle/mips1_data.txt";
+parameter dmem_INIT = "//Mac/Home/Documents/MIPS-single-cycle-with-FPU/float_add_data_8.txt";
 
 initial begin
 	$readmemh(dmem_INIT, dmem);

@@ -3,7 +3,8 @@
 module Control(
 	input[5:0]	ins_H,ins_L,
 	output logic RegDst,RegWrite,ALUSrc,MemWrite,MemRead,MemToReg,PCSrc,Branch,
-	output logic [2:0]outOp
+	output logic [2:0]outOp,
+	output logic FPO
 );
 logic [1:0] ALUOp;
 
@@ -12,14 +13,22 @@ always_comb begin
 //		RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00;
 //	end
 	case(ins_H)
-		6'b001000: begin RegDst=0; ALUSrc=1; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00;end // addi
-		6'b000000: begin RegDst=1; ALUSrc=0; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b10;end // Rtype
-		6'b100011: begin RegDst=0; ALUSrc=1; MemToReg=1; RegWrite=1; MemRead=1; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00;end // lw
-		6'b101011: begin RegDst=0; ALUSrc=1; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=1; Branch=0; PCSrc=0; ALUOp=2'b00;end //sw
-		6'b000100: begin RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=0; Branch=1; PCSrc=0; ALUOp=2'b01;end //beq
-		6'b000010: begin RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=0; Branch=0; PCSrc=1; ALUOp=2'b01;end //jump
-		default:   begin RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00;end // this is a unicorn condition
+		6'b001000: begin RegDst=0; ALUSrc=1; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00; FPO=0;end // addi
+		6'b000000: begin RegDst=1; ALUSrc=0; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b10; FPO=0;end // Rtype
+		6'b100011: begin RegDst=0; ALUSrc=1; MemToReg=1; RegWrite=1; MemRead=1; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00; FPO=0;end // lw
+		6'b101011: begin RegDst=0; ALUSrc=1; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=1; Branch=0; PCSrc=0; ALUOp=2'b00; FPO=0;end //sw
+		6'b000100: begin RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=0; Branch=1; PCSrc=0; ALUOp=2'b01; FPO=0;end //beq
+		6'b000010: begin RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=0; Branch=0; PCSrc=1; ALUOp=2'b01; FPO=0;end //jump
+		6'b111001: begin RegDst=0; ALUSrc=1; MemToReg=0; RegWrite=0; MemRead=0; MemWrite=1; Branch=0; PCSrc=0; ALUOp=2'b00; FPO=1;end // swc1 ft, address  rs ft Offset
+		6'b110001: begin RegDst=0; ALUSrc=1; MemToReg=1; RegWrite=1; MemRead=1; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00; FPO=1;end// lwc1
+		6'b010001: begin RegDst=1; ALUSrc=0; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b10; FPO=1;end // Rtype FPU
+
+		default:   begin RegDst=0; ALUSrc=0; MemToReg=0; RegWrite=1; MemRead=0; MemWrite=0; Branch=0; PCSrc=0; ALUOp=2'b00; FPO=0;end // this is a unicorn condition
 	endcase
+//lwc1  110001 01010 00010 0000000000000100
+// 				op    rs     ft       offset // same as lw
+//add.s 010001 10000 00001 00010 00010 000000
+//        op   single  $t1   $t2  $t2
 
 	if 	(ALUOp==2'b00) begin outOp=3'b010; end // addi lw, sw
 	else if (ALUOp==2'b01) begin outOp=3'b110; end // beq,bne
