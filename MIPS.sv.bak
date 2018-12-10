@@ -97,7 +97,7 @@ always_comb begin
   PC_next = (Branch && alu_zero) ? b_addr : PC_4; // top right mux
   PC_next = PCSrc ? instruction[25:0]<<2 : PC_next; // top right mux
   b = ALUSrc ?  { {16{instruction[15]}} ,instruction[15:0]} : rd2 ; // choose either sign extention or reg RegisterFile
-  rd2_selected= FPO ? rd1_FP:rd2;
+  rd2_selected= FPO ? rd2_FP:rd2;
   RegWrite_Gen= FPO ? 0:RegWrite;
   RegWrite_FP = FPO ? RegWrite : 0;
  wn = RegDst ? instruction[15:11] : instruction[20:16];

@@ -10,7 +10,7 @@ module RegisterFile (
 
 logic [32-1:0] file [32-1:0]; //** is the power operator// 8 bit wide, 2^6=64 byte long
 
-parameter MEM_INIT = "H:\\Documents\\MIPS-single-cycle-with-FPU-master\\regfile.txt";
+parameter MEM_INIT = "//Mac/Home/Documents/MIPS-single-cycle-with-FPU/regfile.txt";
 
 initial begin
 	$readmemh(MEM_INIT, file);

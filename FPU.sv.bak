@@ -15,7 +15,7 @@ module FPU(
 	logic [25:0] mantissa_of,mantissa_of_ctrl , mantissa_of_flip;
 	logic [24:0] mantissa_a, mantissa_b , opranda, oprandb;
 	logic [22:0] mantissa_c;
-	logic dominance; // 0 = a, 1=b
+	wire dominance; // 0 = a, 1=b
 	logic of,of1;
 	logic [5:0] encoderShift;
 	logic [3:0] thetype;

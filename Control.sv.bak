@@ -37,8 +37,7 @@ always_comb begin
 	else if (ALUOp[1] && ins_L==6'b100100) begin outOp=3'b000; end //and
 	else if (ALUOp[1] && ins_L==6'b100101) begin outOp=3'b001; end // or
 	else if (ALUOp[1] && ins_L==6'b101010) begin outOp=3'b111; end //slt
-	else if (ALUOp[1] && ins_L==6'b011000) begin outOp=3'b011; end //xor
-
+	else if (ALUOp[1] && ins_L==6'b101010) begin outOp=3'b111; end //xor
 	else begin outOp=3'b011; end // this should never happen,
 
 end
